@@ -26,6 +26,10 @@ DATASET_DIR = "dataset"
 MODELS_DIR = "models"
 MODEL_PATH = os.path.join(MODELS_DIR, "model.pkl")
 
+import shutil
+if os.path.exists(DATASET_DIR):
+    shutil.rmtree(DATASET_DIR)
+
 os.makedirs(DATASET_DIR, exist_ok=True)
 os.makedirs(MODELS_DIR, exist_ok=True)
 
