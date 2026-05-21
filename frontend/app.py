@@ -252,62 +252,200 @@ def get_class_card_html(card_id, default_name):
 def get_preview_html():
     html_code = """
     <div style="font-family: sans-serif; border: 1px solid #ddd; padding: 20px; border-radius: 12px; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-        <video id="pred_video" width="100%" autoplay playsinline style="border-radius: 8px; background: #000; transform: scaleX(-1); max-height: 220px; object-fit: cover;"></video>
+        
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <button id="use_webcam_btn" style="flex:1; padding:10px; border:none; border-radius:8px; background:#1a73e8; color:white; font-weight:bold; cursor:pointer;">
+                Webcam
+            </button>
+
+            <button id="use_upload_btn" style="flex:1; padding:10px; border:none; border-radius:8px; background:#34a853; color:white; font-weight:bold; cursor:pointer;">
+                Upload
+            </button>
+        </div>
+
+        <input type="file" id="upload_input" accept="image/*" style="display:none;">
+
+        <video id="pred_video" width="100%" autoplay playsinline
+            style="border-radius: 8px; background: #000; transform: scaleX(-1); max-height: 220px; object-fit: cover;">
+        </video>
+
+        <img id="uploaded_preview"
+            style="display:none; width:100%; border-radius:8px; max-height:220px; object-fit:cover;" />
+
         <canvas id="pred_canvas" width="224" height="224" style="display:none;"></canvas>
-        <div id="pred_result" style="font-size: 24px; font-weight: bold; margin-top: 15px; text-align: center; color: #222;">Waiting for camera...</div>
+
+        <div id="pred_result"
+            style="font-size: 24px; font-weight: bold; margin-top: 15px; text-align: center; color: #222;">
+            Waiting...
+        </div>
+
         <div id="all_probs" style="margin-top: 15px;"></div>
     </div>
+
     <script>
         (function() {
+
+            const backendUrl = '""" + BACKEND_URL + """';
+
+            const webcamBtn = document.getElementById('use_webcam_btn');
+            const uploadBtn = document.getElementById('use_upload_btn');
+            const uploadInput = document.getElementById('upload_input');
+
             const video = document.getElementById('pred_video');
+            const uploadedPreview = document.getElementById('uploaded_preview');
+
             const canvas = document.getElementById('pred_canvas');
             const ctx = canvas.getContext('2d');
+
             const resultDiv = document.getElementById('pred_result');
             const probsDiv = document.getElementById('all_probs');
+
+            let streamRef = null;
+            let predictInterval = null;
             let isPredicting = false;
-            
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(stream => { 
-                    video.srcObject = stream; 
-                    resultDiv.innerText = "Connecting to model...";
-                    setInterval(predictFrame, 300);
-                })
-                .catch(err => { resultDiv.innerText = "Camera access denied."; });
-                
+
+            startWebcam();
+
+            webcamBtn.onclick = () => {
+                uploadedPreview.style.display = 'none';
+                video.style.display = 'block';
+                startWebcam();
+            };
+
+            uploadBtn.onclick = () => {
+                uploadInput.click();
+            };
+
+            uploadInput.onchange = async () => {
+
+                const file = uploadInput.files[0];
+
+                if (!file) return;
+
+                stopWebcam();
+
+                video.style.display = 'none';
+
+                uploadedPreview.src = URL.createObjectURL(file);
+                uploadedPreview.style.display = 'block';
+
+                predictUploadedImage(file);
+            };
+
+            function startWebcam() {
+
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => {
+
+                        streamRef = stream;
+
+                        video.srcObject = stream;
+
+                        resultDiv.innerText = "Predicting...";
+
+                        if (predictInterval) {
+                            clearInterval(predictInterval);
+                        }
+
+                        predictInterval = setInterval(predictFrame, 300);
+                    })
+                    .catch(err => {
+                        resultDiv.innerText = "Camera access denied.";
+                    });
+            }
+
+            function stopWebcam() {
+
+                if (streamRef) {
+                    streamRef.getTracks().forEach(track => track.stop());
+                    streamRef = null;
+                }
+
+                if (predictInterval) {
+                    clearInterval(predictInterval);
+                }
+            }
+
             async function predictFrame() {
+
                 if (isPredicting) return;
+
                 isPredicting = true;
-                
+
                 ctx.save();
                 ctx.scale(-1, 1);
                 ctx.drawImage(video, -224, 0, 224, 224);
                 ctx.restore();
-                
-                let blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.8));
-                let formData = new FormData();
-                formData.append('file', new File([blob], 'frame.jpg', { type: 'image/jpeg' }));
-                
-                try {
-                    let res = await fetch('""" + BACKEND_URL + """/predict', { method: 'POST', body: formData });
-                    if (res.ok) {
-                        let data = await res.json();
-                        resultDiv.innerText = "Prediction: " + data.class;
-                        
-                        let probsHtml = '';
-                        for (let [cls, prob] of Object.entries(data.all_probabilities)) {
-                            probsHtml += '<div style="display: flex; align-items: center; margin-bottom: 12px;">' +
-                                '<span style="width: 120px; font-weight: bold; font-size: 16px; color: #444; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + cls + '</span>' +
-                                '<div style="flex-grow: 1; background-color: #e0e0e0; height: 24px; border-radius: 12px; overflow: hidden; margin-left: 10px; position: relative;">' +
-                                '<div style="width: ' + prob + '%; background-color: #1a73e8; height: 100%; transition: width 0.2s;"></div>' +
-                                '</div>' +
-                                '<span style="width: 60px; text-align: right; margin-left: 10px; font-size: 14px; font-weight: bold; color: #333;">' + prob.toFixed(0) + '%</span>' +
-                                '</div>';
-                        }
-                        probsDiv.innerHTML = probsHtml;
-                    }
-                } catch(err) {}
+
+                let blob = await new Promise(resolve =>
+                    canvas.toBlob(resolve, 'image/jpeg', 0.8)
+                );
+
+                sendPrediction(blob);
+
                 isPredicting = false;
             }
+
+            async function predictUploadedImage(file) {
+                sendPrediction(file);
+            }
+
+            async function sendPrediction(fileBlob) {
+
+                let formData = new FormData();
+
+                formData.append(
+                    'file',
+                    new File([fileBlob], 'image.jpg', { type: 'image/jpeg' })
+                );
+
+                try {
+
+                    let res = await fetch(
+                        backendUrl + '/predict',
+                        {
+                            method: 'POST',
+                            body: formData
+                        }
+                    );
+
+                    if (res.ok) {
+
+                        let data = await res.json();
+
+                        resultDiv.innerText =
+                            "Prediction: " + data.class;
+
+                        let probsHtml = '';
+
+                        for (let [cls, prob] of Object.entries(data.all_probabilities)) {
+
+                            probsHtml += `
+                                <div style="display:flex; align-items:center; margin-bottom:12px;">
+                                    <span style="width:120px; font-weight:bold;">
+                                        ${cls}
+                                    </span>
+
+                                    <div style="flex-grow:1; background:#e0e0e0; height:24px; border-radius:12px; overflow:hidden; margin-left:10px;">
+                                        <div style="width:${prob}%; background:#1a73e8; height:100%;"></div>
+                                    </div>
+
+                                    <span style="width:60px; text-align:right; margin-left:10px;">
+                                        ${prob.toFixed(0)}%
+                                    </span>
+                                </div>
+                            `;
+                        }
+
+                        probsDiv.innerHTML = probsHtml;
+                    }
+
+                } catch(err) {
+
+                    resultDiv.innerText = "Prediction failed.";
+                }
+            }
+
         })();
     </script>
     """
