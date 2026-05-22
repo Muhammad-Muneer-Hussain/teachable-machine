@@ -1,4 +1,4 @@
-# Offline Teachable Machine 🤖
+# Offline Teachable Machine 
 
 A full-stack, offline-first replication of Google's Teachable Machine built using **FastAPI** for the backend and **Streamlit** for the frontend. This application allows users to train functional machine learning models directly via their browser using image uploads or a live webcam feed—completely containerized and local.
 
@@ -6,9 +6,8 @@ A full-stack, offline-first replication of Google's Teachable Machine built usin
 
 ## 📺 Project Demo & Visuals
 
-```markdown
 ### Live Interface Overview
-![App Screenshot](media\app_screen_shot.PNG)
+![app ui](media\app_screen_shot.PNG)
 
 ### Video / GIF Demo
 ![Working Demo](media\project_working_video.mp4)
@@ -38,8 +37,9 @@ TEACHABLE-MACHINE/
 ├── models/                    # Local volume mapping for trained pickle files (Auto-generated)
 ├── docker-compose.yml         # Multi-container orchestration config
 └── requirements.txt           # Unified python ecosystem dependencies
+```
 
-🚀 Getting Started
+## 🚀 Getting Started
 Prerequisites
 Make sure you have the following software utilities installed on your host environment:
 
@@ -47,13 +47,13 @@ Docker (Desktop or Engine)
 
 Docker Compose
 
-🛠️ Execution & Deployment Steps
+## 🛠️ Execution & Deployment Steps
 Follow these basic commands to initialize the ecosystem from the root folder:
 
 Build and Run the Containers:
 docker-compose up --build
 
-Accessing the Interfaces:
+#### Accessing the Interfaces:
 
 Frontend UI (Streamlit): Open your web browser and navigate to http://localhost:8501
 
@@ -62,7 +62,7 @@ Backend API Documentation (FastAPI Docs): View the interactive Swagger documenta
 Stopping the Services:
 docker-compose down
 
-🧠 Technical Workflow
+## 🧠 Technical Workflow
 1. Feature Extraction:
  When an image frame is uploaded or snapped via the webcam layout, it is preprocessed into a $224 \times 224$ tensor and passed into MobileNet_V3_Small. The final classification head is neutralized (nn.Identity()) to capture generic embeddings/feature maps.
  2. Fast Training Head: Scikit-Learn's LogisticRegression takes the multi-dimensional embeddings alongside the class labels to optimize and fit the decision boundary within seconds.
