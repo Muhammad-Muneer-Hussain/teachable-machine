@@ -38,7 +38,7 @@ def get_class_card_html(card_id, default_name):
     <div style="font-family: sans-serif; background-color: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 10px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <input type="text" id="class_name_{card_id}" value="{default_name}" style="font-size: 20px; font-weight: bold; border: none; outline: none; border-bottom: 2px solid transparent; width: 100%;" onfocus="this.style.borderBottom='2px solid #1a73e8'" onblur="this.style.borderBottom='2px solid transparent'">
-            <span style="color: #888; font-size: 18px;">✏️</span>
+            <span style="color: #888; font-size: 18px;"></span>
         </div>
         <div id="status_{card_id}" style="font-size: 14px; margin-bottom: 10px; color: #555; font-weight: bold;">0 Image Samples</div>
         
