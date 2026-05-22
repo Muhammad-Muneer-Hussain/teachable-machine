@@ -8,10 +8,10 @@ A full-stack, offline-first replication of Google's Teachable Machine built usin
 
 ```markdown
 ### Live Interface Overview
-![App Screenshot](media\app screen shot.PNG)
+![App Screenshot](media\app_screen_shot.PNG)
 
 ### Video / GIF Demo
-![Working Demo](media\project working video.mp4)
+![Working Demo](media\project_working_video.mp4)
 
 
 ## ✨ Features
