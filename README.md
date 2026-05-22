@@ -7,10 +7,10 @@ A full-stack, offline-first replication of Google's Teachable Machine built usin
 ## 📺 Project Demo & Visuals
 
 ### Live Interface Overview
-![app ui](media\app_screen_shot.PNG)
+![app ui](media/app_screen_shot.PNG)
 
 ### Video / GIF Demo
-![Working Demo](media\project_working_video.mp4)
+![Working Demo](media/project_working_video.mp4)
 
 
 ## ✨ Features
