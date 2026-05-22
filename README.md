@@ -6,13 +6,13 @@ A full-stack, offline-first replication of Google's Teachable Machine built usin
 
 ## 📺 Project Demo & Visuals
 
+```markdown
 ### Live Interface Overview
-![App Screenshot](frontend/models/model.pkl) > **Note:** Below are placeholders to add your project's working screenshots or a quick video/GIF demo.
-> 
-> * **Training Interface:** Put a picture of sample gathering here.
-> * **Real-time Prediction:** Put a picture of successful classification here.
+![App Screenshot](media\app screen shot.PNG)
 
----
+### Video / GIF Demo
+![Working Demo](media\project working video.mp4)
+
 
 ## ✨ Features
 
@@ -38,3 +38,44 @@ TEACHABLE-MACHINE/
 ├── models/                    # Local volume mapping for trained pickle files (Auto-generated)
 ├── docker-compose.yml         # Multi-container orchestration config
 └── requirements.txt           # Unified python ecosystem dependencies
+
+🚀 Getting Started
+Prerequisites
+Make sure you have the following software utilities installed on your host environment:
+
+Docker (Desktop or Engine)
+
+Docker Compose
+
+🛠️ Execution & Deployment Steps
+Follow these basic commands to initialize the ecosystem from the root folder:
+
+Build and Run the Containers:
+docker-compose up --build
+
+Accessing the Interfaces:
+
+Frontend UI (Streamlit): Open your web browser and navigate to http://localhost:8501
+
+Backend API Documentation (FastAPI Docs): View the interactive Swagger documentation at http://localhost:8000/docs
+
+Stopping the Services:
+docker-compose down
+
+🧠 Technical Workflow
+1. Feature Extraction:
+ When an image frame is uploaded or snapped via the webcam layout, it is preprocessed into a $224 \times 224$ tensor and passed into MobileNet_V3_Small. The final classification head is neutralized (nn.Identity()) to capture generic embeddings/feature maps.
+ 2. Fast Training Head: Scikit-Learn's LogisticRegression takes the multi-dimensional embeddings alongside the class labels to optimize and fit the decision boundary within seconds.
+ 3. Serialized Predictions: The state of the weights is exported locally into a serialized binary format (model.pkl), which is shared interactively across endpoints for real-time validation matrices.
+ 🛠️ Technology Stack Used
+Frontend UI: Streamlit, HTML5/JavaScript Canvas (Webcam Stream)
+
+Backend Framework: FastAPI, Uvicorn
+
+Deep Learning Framework: PyTorch (torch), Torchvision
+
+Machine Learning Algorithms: Scikit-Learn (Logistic Regression)
+
+Image Processing Engine: Pillow (PIL)
+
+Container Environment: Docker & Docker Compose
