@@ -10,7 +10,7 @@ A full-stack, offline-first replication of Google's Teachable Machine built usin
 ![app interface](media/app_screen_shot.PNG)
 
 ### Video Demo
-![Working Demo](media/project_working_video.gif)
+<img src="media/working_flow.gif" width="800" height="600" alt="Working Demo">
 
 
 
